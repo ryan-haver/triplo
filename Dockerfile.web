@@ -55,7 +55,7 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN echo '#!/bin/bash\n\
 export DISPLAY=:1\n\
 cd /opt/triplo/triplo-ai\n\
-./triplo-ai --no-sandbox --disable-gpu\n\
+./triplo.ai --no-sandbox --disable-gpu\n\
 ' > /opt/start-triplo.sh && chmod +x /opt/start-triplo.sh
 
 EXPOSE 6080
