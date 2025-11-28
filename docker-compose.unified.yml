@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # Headless mode with Web UI only
+  triplo-headless:
+    image: ghcr.io/ryan-haver/triplo-unified:latest
+    container_name: triplo-headless
+    environment:
+      # Mode Configuration
+      - ENABLE_NOVNC=false
+      
+      # License
+      - TRIPLO_LICENSE_KEY=${TRIPLO_LICENSE_KEY:-}
+      
+      # API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      
+      # AI Configuration
+      - TRIPLO_AI_SOURCE=open_ai
+      - TRIPLO_OPENAI_MODEL=gpt-4o-mini
+      - TRIPLO_TEMPERATURE=0.5
+      
+      # Features
+      - TRIPLO_AUTO_SCROLL=true
+      - TRIPLO_COPY_TO_CLIPBOARD=true
+      - TRIPLO_AWARENESS_MODE=true
+    ports:
+      - "8080:8080"  # Web UI
+    volumes:
+      - triplo-headless-data:/root/.config/Triplo AI
+    restart: unless-stopped
+
+  # Full mode with noVNC + Web UI
+  triplo-web:
+    image: ghcr.io/ryan-haver/triplo-unified:latest
+    container_name: triplo-web
+    environment:
+      # Mode Configuration
+      - ENABLE_NOVNC=true
+      - DISPLAY_WIDTH=1920
+      - DISPLAY_HEIGHT=1080
+      
+      # License
+      - TRIPLO_LICENSE_KEY=${TRIPLO_LICENSE_KEY:-}
+      
+      # API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      
+      # AI Configuration
+      - TRIPLO_AI_SOURCE=open_ai
+      - TRIPLO_OPENAI_MODEL=gpt-4o-mini
+      - TRIPLO_TEMPERATURE=0.7
+      
+      # Features
+      - TRIPLO_AUTO_SCROLL=true
+      - TRIPLO_COPY_TO_CLIPBOARD=true
+      - TRIPLO_AWARENESS_MODE=true
+      - TRIPLO_COLOR_SCHEME=dark
+    ports:
+      - "8081:8080"  # Web UI (different port to avoid conflict)
+      - "6080:6080"  # noVNC
+    volumes:
+      - triplo-web-data:/root/.config/Triplo AI
+    restart: unless-stopped
+
+volumes:
+  triplo-headless-data:
+  triplo-web-data:

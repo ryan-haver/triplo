@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  triplo-unified-headless:
+    build:
+      context: .
+      dockerfile: Dockerfile.unified
+      args:
+        VERSION: v5.4.0
+    container_name: triplo-unified-headless
+    environment:
+      - ENABLE_NOVNC=false
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - TRIPLO_AI_SOURCE=open_ai
+      - TRIPLO_OPENAI_MODEL=gpt-4o-mini
+    ports:
+      - "8080:8080"
+    volumes:
+      - triplo-unified-headless-data:/root/.config/Triplo AI
+
+  triplo-unified-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.unified
+      args:
+        VERSION: v5.4.0
+    container_name: triplo-unified-web
+    environment:
+      - ENABLE_NOVNC=true
+      - DISPLAY_WIDTH=1920
+      - DISPLAY_HEIGHT=1080
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - TRIPLO_AI_SOURCE=open_ai
+      - TRIPLO_OPENAI_MODEL=gpt-4o-mini
+    ports:
+      - "8081:8080"  # Web UI
+      - "6080:6080"  # noVNC
+    volumes:
+      - triplo-unified-web-data:/root/.config/Triplo AI
+
+volumes:
+  triplo-unified-headless-data:
+  triplo-unified-web-data:

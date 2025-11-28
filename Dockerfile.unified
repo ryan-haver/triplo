@@ -1,0 +1,86 @@
+# Dockerfile for Triplo AI - Unified (Headless + Optional noVNC + Web UI)
+FROM ubuntu:22.04
+
+ARG VERSION=v5.4.0
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DISPLAY=:99
+ENV APPIMAGE_VERSION=${VERSION}
+ENV ENABLE_NOVNC=false
+
+# Install base dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    ca-certificates \
+    libgtk-3-0 \
+    libnotify4 \
+    libnss3 \
+    libxss1 \
+    libxtst6 \
+    xdg-utils \
+    libatspi2.0-0 \
+    libdrm2 \
+    libgbm1 \
+    libasound2 \
+    xvfb \
+    dbus-x11 \
+    jq \
+    python3 \
+    python3-pip \
+    git \
+    supervisor \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /var/cache/fontconfig/*
+
+# Install Python dependencies for web UI
+RUN pip3 install --no-cache-dir flask gunicorn
+
+# Conditionally install noVNC dependencies (installed but only used if ENABLE_NOVNC=true)
+RUN apt-get update && apt-get install -y \
+    x11vnc \
+    fluxbox \
+    nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Download and install Triplo AI AppImage
+WORKDIR /opt/triplo
+RUN VERSION_NUM=$(echo ${APPIMAGE_VERSION} | sed 's/v//') \
+    && wget https://github.com/Elbruz-Technologies/triplo/releases/download/${APPIMAGE_VERSION}/Triplo-AI-${VERSION_NUM}.AppImage \
+    && chmod +x Triplo-AI-${VERSION_NUM}.AppImage \
+    && ./Triplo-AI-${VERSION_NUM}.AppImage --appimage-extract \
+    && mv squashfs-root triplo-ai \
+    && rm Triplo-AI-${VERSION_NUM}.AppImage
+
+# Install noVNC (only used if ENABLE_NOVNC=true)
+WORKDIR /opt
+RUN git clone https://github.com/novnc/noVNC.git /opt/novnc \
+    && git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify \
+    && ln -s /opt/novnc/vnc.html /opt/novnc/index.html
+
+# Configure Fluxbox for fullscreen (only used if ENABLE_NOVNC=true)
+RUN mkdir -p /root/.fluxbox \
+    && echo "session.screen0.toolbar.visible: false" > /root/.fluxbox/init \
+    && echo "session.screen0.defaultDeco: NONE" >> /root/.fluxbox/init
+
+# Copy web UI files
+COPY webui /opt/webui
+
+# Copy configuration files
+COPY init-config.sh /usr/local/bin/init-config.sh
+COPY supervisord-unified.conf /etc/supervisor/conf.d/supervisord.conf
+COPY nginx-unified.conf /etc/nginx/nginx.conf
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+
+RUN chmod +x /usr/local/bin/init-config.sh /usr/local/bin/entrypoint.sh
+
+# Expose ports
+# 8080 - Web UI
+# 6080 - noVNC (if enabled)
+EXPOSE 8080 6080
+
+# Set working directory
+WORKDIR /opt/triplo/triplo-ai
+
+# Use entrypoint to configure based on ENABLE_NOVNC
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
