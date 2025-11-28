@@ -85,6 +85,13 @@ All boolean values: `true` or `false`
 
 **Note:** Triplo AI will launch in fullscreen mode to match the noVNC viewport.
 
+### Ollama Integration
+
+- `TRIPLO_ENABLE_OLLAMA` - Enable Ollama local LLM support (default: `false`)
+- `TRIPLO_LLM_KEY` - LLM service API key
+- `TRIPLO_OLLAMA_URL` - Ollama server URL (default: `http://localhost:11434`)
+- `TRIPLO_OLLAMA_MODELS` - Comma-separated list of Ollama models (e.g., `llama3.1:latest,qwen3-coder:latest,deepseek-r1:latest`)
+
 ### License
 
 - `TRIPLO_LICENSE_KEY` - Your Triplo AI license key

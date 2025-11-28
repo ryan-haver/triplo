@@ -3,6 +3,13 @@
 # Create config directory if it doesn't exist
 mkdir -p "/root/.config/Triplo AI"
 
+# Parse OLLAMA_MODELS env var (comma-separated) into JSON array
+OLLAMA_MODELS_JSON="[]"
+if [ -n "$TRIPLO_OLLAMA_MODELS" ]; then
+  # Convert comma-separated list to JSON array
+  OLLAMA_MODELS_JSON=$(echo "$TRIPLO_OLLAMA_MODELS" | jq -R 'split(",") | map(gsub("^\\s+|\\s+$";""))')
+fi
+
 # Generate config.json with environment variable substitution
 cat > "/root/.config/Triplo AI/config.json" << EOF
 {
@@ -53,7 +60,11 @@ cat > "/root/.config/Triplo AI/config.json" << EOF
     "confirm_automations": ${TRIPLO_CONFIRM_AUTOMATIONS:-true},
     "yt_lang": "${TRIPLO_YOUTUBE_LANG:-en}",
     "prompt_lang": "${TRIPLO_PROMPT_LANG:-}",
-    "language": "${TRIPLO_LANGUAGE:-en}"
+    "language": "${TRIPLO_LANGUAGE:-en}",
+    "enable_ollama": ${TRIPLO_ENABLE_OLLAMA:-false},
+    "llm_key": "${TRIPLO_LLM_KEY:-}",
+    "ollama_url": "${TRIPLO_OLLAMA_URL:-http://localhost:11434}",
+    "ollama_models": ${OLLAMA_MODELS_JSON}
   }
 }
 EOF

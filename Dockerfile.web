@@ -30,6 +30,7 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     net-tools \
     nginx \
+    jq \
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /var/cache/fontconfig/*
 
