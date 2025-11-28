@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  triplo-headless:
+    image: ghcr.io/ryan-haver/triplo-headless:latest
+    container_name: triplo-ai-headless
+    restart: unless-stopped
+    environment:
+      - DISPLAY=:99
+    volumes:
+      - triplo-data:/root/.config/Triplo AI
+    # Uncomment to enable shared memory (may improve performance)
+    # shm_size: '2gb'
+    
+  triplo-web:
+    image: ghcr.io/ryan-haver/triplo-web:latest
+    container_name: triplo-ai-web
+    restart: unless-stopped
+    ports:
+      - "6080:6080"  # noVNC web interface
+    environment:
+      - DISPLAY=:1
+    volumes:
+      - triplo-data-web:/root/.config/Triplo AI
+    # Uncomment to enable shared memory (may improve performance)
+    # shm_size: '2gb'
+
+volumes:
+  triplo-data:
+  triplo-data-web:

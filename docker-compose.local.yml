@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  triplo-headless:
+    build:
+      context: .
+      dockerfile: Dockerfile.headless
+      args:
+        VERSION: v5.4.0
+    container_name: triplo-ai-headless
+    restart: unless-stopped
+    environment:
+      - DISPLAY=:99
+    volumes:
+      - triplo-data:/root/.config/Triplo AI
+    
+  triplo-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        VERSION: v5.4.0
+    container_name: triplo-ai-web
+    restart: unless-stopped
+    ports:
+      - "6080:6080"
+    environment:
+      - DISPLAY=:1
+    volumes:
+      - triplo-data-web:/root/.config/Triplo AI
+
+volumes:
+  triplo-data:
+  triplo-data-web:

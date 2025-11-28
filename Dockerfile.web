@@ -1,0 +1,68 @@
+# Dockerfile for Triplo AI - Web Accessible via noVNC
+FROM ubuntu:22.04
+
+ARG VERSION=v5.4.0
+ENV DEBIAN_FRONTEND=noninteractive
+ENV DISPLAY=:1
+ENV VNC_PORT=5901
+ENV NOVNC_PORT=6080
+ENV APPIMAGE_VERSION=${VERSION}
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    ca-certificates \
+    libgtk-3-0 \
+    libnotify4 \
+    libnss3 \
+    libxss1 \
+    libxtst6 \
+    xdg-utils \
+    libatspi2.0-0 \
+    libdrm2 \
+    libgbm1 \
+    libasound2 \
+    x11vnc \
+    xvfb \
+    fluxbox \
+    dbus-x11 \
+    git \
+    supervisor \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install noVNC
+WORKDIR /opt
+RUN git clone https://github.com/novnc/noVNC.git /opt/novnc \
+    && git clone https://github.com/novnc/websockify /opt/novnc/utils/websockify \
+    && ln -s /opt/novnc/vnc.html /opt/novnc/index.html
+
+# Download and install Triplo AI AppImage
+WORKDIR /opt/triplo
+RUN VERSION_NUM=$(echo ${APPIMAGE_VERSION} | sed 's/v//') \
+    && wget https://github.com/Elbruz-Technologies/triplo/releases/download/${APPIMAGE_VERSION}/Triplo-AI-${VERSION_NUM}.AppImage \
+    && chmod +x Triplo-AI-${VERSION_NUM}.AppImage \
+    && ./Triplo-AI-${VERSION_NUM}.AppImage --appimage-extract \
+    && mv squashfs-root triplo-ai \
+    && rm Triplo-AI-${VERSION_NUM}.AppImage
+
+# Create supervisor configuration
+RUN mkdir -p /var/log/supervisor
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Create startup script
+RUN echo '#!/bin/bash\n\
+export DISPLAY=:1\n\
+cd /opt/triplo/triplo-ai\n\
+./triplo-ai --no-sandbox --disable-gpu\n\
+' > /opt/start-triplo.sh && chmod +x /opt/start-triplo.sh
+
+EXPOSE 6080
+
+WORKDIR /opt/triplo/triplo-ai
+
+LABEL org.opencontainers.image.source=https://github.com/ryan-haver/triplo
+LABEL org.opencontainers.image.description="Triplo AI - Web Accessible via noVNC"
+LABEL org.opencontainers.image.version=${VERSION}
+
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
