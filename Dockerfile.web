@@ -29,7 +29,8 @@ RUN apt-get update && apt-get install -y \
     git \
     supervisor \
     net-tools \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /var/cache/fontconfig/*
 
 # Install noVNC
 WORKDIR /opt
