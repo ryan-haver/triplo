@@ -78,12 +78,20 @@ All boolean values: `true` or `false`
   - Options: `idle`, `hide_on_idle`
 - `TRIPLO_PROMPT_LANG` - Prompt language override (default: empty)
 
-### Display Configuration (Web Version)
+### Display & Remote Desktop Configuration (Web Version)
 
 - `DISPLAY_WIDTH` - Virtual display width (default: `1920`)
 - `DISPLAY_HEIGHT` - Virtual display height (default: `1080`)
+- `ENABLE_NOVNC` - Start the container with the remote desktop stack (Fluxbox + x11vnc + noVNC). Defaults to `false` for headless deployments.
+- `NOVNC_PUBLIC_URL` - Optional absolute URL (e.g., `https://remote.example.com/novnc`) that the Access tab uses for the "Open noVNC" link when you front the container with a reverse proxy. Defaults to `http://<current-host>:6080/`. The logout button is handled by the Web UI backend and does not rely on this value.
 
-**Note:** Triplo AI will launch in fullscreen mode to match the noVNC viewport.
+**Note:** Triplo AI will launch in fullscreen mode to match the noVNC viewport. Toggling the Remote Desktop switch inside the Web UI Access tab writes the desired state to `/root/.config/Triplo AI/platform-settings.json`; restart the container to apply whatever value you most recently saved through the UI.
+
+### Authentication
+
+- `WEBUI_USERNAME` / `WEBUI_PASSWORD` - HTTP Basic Auth credentials required to access the Web UI. Defaults to `triplo` / `triplo`. These values are written to `/root/.config/Triplo AI/webui-auth.json` on first run (or whenever `RESET_WEB_AUTH=true`) and can later be managed from the Web UI **Access → Authentication** panel. Stored credentials are encrypted at rest using a companion key file located at `/root/.config/Triplo AI/webui-auth.key`.
+- `NOVNC_USERNAME` / `NOVNC_PASSWORD` - HTTP Basic Auth credentials for the noVNC interface. Defaults to `triplo` / `triplo` and inherits the Web UI credentials automatically when not explicitly provided. Runtime changes made through the Access tab are stored in the same `webui-auth.json` file so they persist across restarts.
+- `RESET_WEB_AUTH` - Set to `true` to regenerate `webui-auth.json` from the current environment variables on startup. This will overwrite any credentials previously saved through the Web UI. Default: `false`.
 
 ### Ollama Integration
 
@@ -157,6 +165,15 @@ docker run -d \
   -v triplo-data:/root/.config/Triplo\ AI \
   ghcr.io/ryan-haver/triplo-web:latest
 ```
+
+The `/root/.config/Triplo AI` directory now contains:
+
+- `config.json` - All Triplo preferences managed by the Web UI.
+- `webui-auth.json` - Stored Web UI/noVNC credentials (kept in sync with the Access tab and regenerated only when `RESET_WEB_AUTH=true`).
+- `platform-settings.json` - Platform-level toggles that are not part of Triplo's native config, such as whether noVNC should start next boot. The Access tab writes here when you flip the Remote Desktop switch.
+- `webui-auth.key` - Automatically generated key material used to encrypt/decrypt `webui-auth.json`. Treat this like a secret; anyone with the key file and the encrypted blob can recover the credentials.
+
+Mounting this directory to a single Docker volume keeps both the Triplo application state, authentication settings, and platform toggles persistent.
 
 ## Custom Config File
 

@@ -262,6 +262,194 @@
             color: #6b7280;
             margin-top: 4px;
         }
+
+        .help-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        .help-row a {
+            font-size: 13px;
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .help-row a:hover {
+            text-decoration: underline;
+        }
+
+        .logout-actions {
+            margin-top: 12px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .novnc-status {
+            margin-bottom: 16px;
+        }
+
+        .remote-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .readonlyInput {
+            background: #f3f4f6;
+            cursor: not-allowed;
+        }
+
+        .encryption-input {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .encryption-input input {
+            flex: 1;
+        }
+
+        .secret-input {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .secret-input input {
+            flex: 1;
+        }
+
+        .secret-toggle {
+            min-width: 44px;
+        }
+
+        .icon-button {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .icon-button:hover {
+            background: #f3f4f6;
+        }
+
+        .local-llm-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .model-list {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fff;
+            min-height: 80px;
+        }
+
+        .model-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #f3f4f6;
+            gap: 12px;
+        }
+
+        .model-item:last-child {
+            border-bottom: none;
+        }
+
+        .model-name {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 13px;
+            color: #1f2937;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .model-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .model-empty {
+            color: #6b7280;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .model-add-row {
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .model-add-row input {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .novnc-note {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .resource-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .resource-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            background: white;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+        }
+
+        .resource-card p {
+            margin: 0;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        .resource-card a {
+            align-self: flex-start;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .resource-card a:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -282,7 +470,7 @@
                 <button class="tab" data-tab="preferences">Preferences</button>
                 <button class="tab" data-tab="voice">Voice & Audio</button>
                 <button class="tab" data-tab="display">Display & UI</button>
-                <button class="tab" data-tab="ollama">Ollama</button>
+                <button class="tab" data-tab="ollama">Local LLM</button>
                 <button class="tab" data-tab="access">Access</button>
             </div>
 
@@ -291,7 +479,7 @@
                 <div class="section">
                     <div class="section-title">🤖 AI Provider</div>
                     <div class="form-group">
-                        <label>AI Source</label>
+                        <label for="ai_source">AI Source</label>
                         <select id="ai_source">
                             <option value="open_ai">OpenAI</option>
                             <option value="openrouter">OpenRouter</option>
@@ -304,28 +492,40 @@
                 <div class="section">
                     <div class="section-title">🔑 API Keys</div>
                     <div class="form-group">
-                        <label>License Key</label>
-                        <input type="text" id="license_key" placeholder="Your Triplo AI license key">
+                        <label for="license_key">License Key</label>
+                        <div class="secret-input">
+                            <input type="password" id="license_key" placeholder="Your Triplo AI license key" autocomplete="off">
+                            <button class="icon-button secret-toggle" type="button" data-secret-toggle="license_key" aria-label="Show license key" onclick="toggleSecret('license_key')">👁</button>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>OpenAI API Key</label>
-                        <input type="text" id="openai_key" placeholder="sk-proj-...">
+                        <label for="openai_key">OpenAI API Key</label>
+                        <div class="secret-input">
+                            <input type="password" id="openai_key" placeholder="sk-proj-..." autocomplete="off">
+                            <button class="icon-button secret-toggle" type="button" data-secret-toggle="openai_key" aria-label="Show OpenAI key" onclick="toggleSecret('openai_key')">👁</button>
+                        </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="enable_openai_key">
                             <label for="enable_openai_key">Enable OpenAI</label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>OpenRouter API Key</label>
-                        <input type="text" id="openrouter_key" placeholder="sk-or-...">
+                        <label for="openrouter_key">OpenRouter API Key</label>
+                        <div class="secret-input">
+                            <input type="password" id="openrouter_key" placeholder="sk-or-..." autocomplete="off">
+                            <button class="icon-button secret-toggle" type="button" data-secret-toggle="openrouter_key" aria-label="Show OpenRouter key" onclick="toggleSecret('openrouter_key')">👁</button>
+                        </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="enable_openrouter_key">
                             <label for="enable_openrouter_key">Enable OpenRouter</label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Anthropic API Key</label>
-                        <input type="text" id="anthropic_key" placeholder="sk-ant-...">
+                        <label for="anthropic_key">Anthropic API Key</label>
+                        <div class="secret-input">
+                            <input type="password" id="anthropic_key" placeholder="sk-ant-..." autocomplete="off">
+                            <button class="icon-button secret-toggle" type="button" data-secret-toggle="anthropic_key" aria-label="Show Anthropic key" onclick="toggleSecret('anthropic_key')">👁</button>
+                        </div>
                         <div class="checkbox-group">
                             <input type="checkbox" id="enable_anthropic_key">
                             <label for="enable_anthropic_key">Enable Anthropic</label>
@@ -337,7 +537,7 @@
                     <div class="section-title">⚙️ Model Configuration</div>
                     <div class="grid">
                         <div class="form-group">
-                            <label>OpenAI Model</label>
+                            <label for="openai_model">OpenAI Model</label>
                             <select id="openai_model">
                                 <option value="gpt-4o">GPT-4o</option>
                                 <option value="gpt-4o-mini">GPT-4o Mini</option>
@@ -346,12 +546,12 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Temperature (0-2)</label>
+                            <label for="temperature">Temperature (0-2)</label>
                             <input type="number" id="temperature" min="0" max="2" step="0.1" value="0.5">
                             <div class="help-text">Higher = more creative, Lower = more focused</div>
                         </div>
                         <div class="form-group">
-                            <label>Presence Penalty (0-2)</label>
+                            <label for="presence_penalty">Presence Penalty (0-2)</label>
                             <input type="number" id="presence_penalty" min="0" max="2" step="0.1" value="0">
                             <div class="help-text">Encourages model to talk about new topics</div>
                         </div>
@@ -405,13 +605,18 @@
                     <div class="section-title">⌨️ Keyboard</div>
                     <div class="grid">
                         <div class="form-group">
-                            <label>Custom Hotkey</label>
+                            <label for="custom_hotkey">Custom Hotkey</label>
                             <input type="text" id="custom_hotkey" placeholder="Ctrl+Space">
                         </div>
                         <div class="form-group">
-                            <label>Custom Trigger</label>
+                            <label for="custom_trigger">Custom Trigger</label>
                             <input type="text" id="custom_trigger" placeholder="">
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="custom_sp_hotkeys">Custom Smart Paste Hotkeys (comma-separated)</label>
+                        <input type="text" id="custom_sp_hotkeys" placeholder="Ctrl+Alt+1,Ctrl+Alt+2">
+                        <div class="help-text">Matches the desktop app's optional Smart Paste shortcuts.</div>
                     </div>
                     <div class="checkbox-group">
                         <input type="checkbox" id="shift_backspace">
@@ -438,7 +643,7 @@
                     <div class="section-title">🎙️ Text-to-Speech</div>
                     <div class="grid">
                         <div class="form-group">
-                            <label>TTS Voice</label>
+                            <label for="voice_tts_voice">TTS Voice</label>
                             <select id="voice_tts_voice">
                                 <option value="alloy">Alloy</option>
                                 <option value="echo">Echo</option>
@@ -449,14 +654,14 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>TTS Model</label>
+                            <label for="voice_tts_model">TTS Model</label>
                             <select id="voice_tts_model">
                                 <option value="tts-1">TTS-1</option>
                                 <option value="tts-1-hd">TTS-1 HD</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>TTS Speed (0.25-4.0)</label>
+                            <label for="voice_tts_speed">TTS Speed (0.25-4.0)</label>
                             <input type="number" id="voice_tts_speed" min="0.25" max="4" step="0.25" value="1">
                         </div>
                     </div>
@@ -469,7 +674,7 @@
                 <div class="section">
                     <div class="section-title">🎧 Speech-to-Text</div>
                     <div class="form-group">
-                        <label>STT Language</label>
+                        <label for="voice_stt_lang">STT Language</label>
                         <input type="text" id="voice_stt_lang" placeholder="en" maxlength="2">
                         <div class="help-text">ISO 639-1 language code (e.g., en, es, fr)</div>
                     </div>
@@ -481,7 +686,7 @@
                 <div class="section">
                     <div class="section-title">🎨 Appearance</div>
                     <div class="form-group">
-                        <label>Color Scheme</label>
+                        <label for="color_scheme">Color Scheme</label>
                         <select id="color_scheme">
                             <option value="auto">Auto</option>
                             <option value="light">Light</option>
@@ -489,7 +694,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Indicator</label>
+                        <label for="indicator">Indicator</label>
                         <select id="indicator">
                             <option value="idle">Idle</option>
                             <option value="active">Active</option>
@@ -506,7 +711,7 @@
                     <div class="section-title">📏 Window Dimensions</div>
                     <div class="grid">
                         <div class="form-group">
-                            <label>Window Width</label>
+                            <label for="window_width">Window Width</label>
                             <select id="window_width">
                                 <option value="sm">Small</option>
                                 <option value="md">Medium</option>
@@ -514,7 +719,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Page Height</label>
+                            <label for="page_height">Page Height</label>
                             <select id="page_height">
                                 <option value="sm">Small</option>
                                 <option value="md">Medium</option>
@@ -522,7 +727,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Main Height</label>
+                            <label for="main_height">Main Height</label>
                             <select id="main_height">
                                 <option value="sm">Small</option>
                                 <option value="md">Medium</option>
@@ -536,55 +741,119 @@
                     <div class="section-title">🌍 Language</div>
                     <div class="grid">
                         <div class="form-group">
-                            <label>Interface Language</label>
+                            <label for="language">Interface Language</label>
                             <input type="text" id="language" placeholder="en" maxlength="2">
                         </div>
                         <div class="form-group">
-                            <label>YouTube Language</label>
+                            <label for="yt_lang">YouTube Language</label>
                             <input type="text" id="yt_lang" placeholder="en" maxlength="2">
                         </div>
                         <div class="form-group">
-                            <label>Prompt Language</label>
+                            <label for="prompt_lang">Prompt Language</label>
                             <input type="text" id="prompt_lang" placeholder="">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Ollama Tab -->
+            <!-- Local LLM Tab -->
             <div class="tab-content" data-content="ollama">
                 <div class="section">
-                    <div class="section-title">🦙 Ollama Configuration</div>
+                    <div class="section-title">🧠 Local LLM Settings [BETA]</div>
                     <div class="checkbox-group">
                         <input type="checkbox" id="enable_ollama">
-                        <label for="enable_ollama">Enable Ollama</label>
+                        <label for="enable_ollama">Enable Local LLMs</label>
                     </div>
                     <div class="form-group">
-                        <label>LLM API Key</label>
-                        <input type="text" id="llm_key" placeholder="">
-                    </div>
-                    <div class="form-group">
-                        <label>Ollama URL</label>
+                        <label for="ollama_url">Local LLM provider URL</label>
                         <input type="text" id="ollama_url" placeholder="http://localhost:11434">
-                        <div class="help-text">URL of your Ollama server</div>
+                        <div class="help-row">
+                            <span class="help-text">Point to the Ollama instance exposing your models.</span>
+                            <a href="https://go.triplo.ai/ollama" target="_blank" rel="noopener noreferrer">Local LLM Help</a>
+                        </div>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="sync_local_llm">
+                        <label for="sync_local_llm">Share access with mobile devices</label>
                     </div>
                     <div class="form-group">
-                        <label>Ollama Models (comma-separated)</label>
-                        <input type="text" id="ollama_models" placeholder="llama3.1:latest,deepseek-r1:latest">
-                        <div class="help-text">Available models from your Ollama server</div>
+                        <label for="llm_key">Encryption key</label>
+                        <div class="encryption-input">
+                            <input type="password" id="llm_key" class="readonlyInput" readonly>
+                            <button class="icon-button secret-toggle" type="button" data-secret-toggle="llm_key" aria-label="Show encryption key" onclick="toggleSecret('llm_key')">👁</button>
+                            <button class="icon-button" type="button" onclick="regenerateLlmKey()">Generate new key</button>
+                            <button class="icon-button" type="button" onclick="copyLlmKey()">Copy</button>
+                        </div>
+                        <div class="help-text">Use this key when pairing remote devices. Regenerating saves immediately.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">📚 Local LLM Models</div>
+                    <div class="local-llm-actions">
+                        <button class="btn btn-secondary" type="button" onclick="refreshLocalLlmModels()">Refresh from provider</button>
+                        <button class="btn btn-secondary" type="button" onclick="copyAllLocalLlmModels()">Copy all</button>
+                    </div>
+                    <div id="ollamaModelsList" class="model-list">
+                        <p class="model-empty">No models loaded yet. Refresh from your provider or add entries below.</p>
+                    </div>
+                    <div class="model-add-row">
+                        <input type="text" id="ollama_model_input" placeholder="qwen2.5-coder:14b">
+                        <button class="btn btn-secondary" type="button" onclick="addLocalLlmModel()">Add model</button>
                     </div>
                 </div>
             </div>
 
             <!-- Access Tab -->
             <div class="tab-content" data-content="access">
-                <div class="section">
-                    <div class="section-title">🖥️ Access Options</div>
-                    <div id="novncSection">
-                        <p style="margin-bottom: 16px;">noVNC is <strong id="novncStatus">disabled</strong>.</p>
-                        <a href="/novnc" class="novnc-link" id="novncLink" style="display: none;" target="_blank">
+                <div class="section" id="novncSection">
+                    <div class="section-title">🖥️ Remote Desktop</div>
+                    <p class="novnc-status">noVNC is <strong id="novncStatus">disabled</strong>.</p>
+                    <p class="novnc-note" id="novncStatusDetail"></p>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="novnc_enabled_toggle">
+                        <label for="novnc_enabled_toggle">Enable noVNC remote desktop access</label>
+                    </div>
+                    <p class="novnc-note" id="novncToggleHelp">Changes require a container restart to take effect.</p>
+                    <div class="remote-actions">
+                        <button class="btn btn-secondary" type="button" onclick="updateNovncSetting()">Save Remote Desktop Preference</button>
+                        <a href="#" class="novnc-link hidden" id="novncLink" target="_blank" rel="noopener noreferrer">
                             Open noVNC Interface →
                         </a>
+                        <button class="btn btn-secondary hidden" type="button" id="novncLogoutButton" onclick="logoutNoVnc()">Log out of noVNC</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🔒 Authentication</div>
+                    <div class="form-group">
+                        <label for="auth_webui_username">Web UI Username</label>
+                        <input type="text" id="auth_webui_username" placeholder="triplo" autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="auth_webui_password">Web UI Password</label>
+                        <input type="password" id="auth_webui_password" placeholder="••••••" autocomplete="new-password">
+                        <div class="help-text">Leave blank to keep the current password.</div>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="auth_novnc_sync">
+                        <label for="auth_novnc_sync">Use Web UI credentials for noVNC</label>
+                    </div>
+                    <div id="novncCustomFields" class="hidden">
+                        <div class="form-group">
+                            <label for="auth_novnc_username">noVNC Username</label>
+                            <input type="text" id="auth_novnc_username" placeholder="triplo" autocomplete="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="auth_novnc_password">noVNC Password</label>
+                            <input type="password" id="auth_novnc_password" placeholder="••••••" autocomplete="new-password">
+                            <div class="help-text">Leave blank to keep the current password.</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" type="button" onclick="saveAuthConfig()">Save Authentication</button>
+                    <div class="help-row logout-actions">
+                        <button class="btn btn-secondary" type="button" onclick="logoutWebUi()">Log out of Web UI</button>
+                        <span class="help-text">Forces this browser to re-enter HTTP Basic credentials.</span>
                     </div>
                 </div>
 
@@ -592,16 +861,37 @@
                     <div class="section-title">🔄 Application Control</div>
                     <button class="btn btn-secondary" onclick="restartTriplo()">Restart Triplo AI</button>
                 </div>
+
+                <div class="section">
+                    <div class="section-title">📚 Triplo Resources</div>
+                    <div class="resource-links">
+                        <div class="resource-card">
+                            <p>Review official Triplo documentation for setup guides, feature deep-dives, and troubleshooting tips.</p>
+                            <a href="https://triplo.ai/docs" target="_blank" rel="noopener noreferrer">Open Docs</a>
+                        </div>
+                        <div class="resource-card">
+                            <p>Download the latest Triplo desktop installers or update packages directly from the official source.</p>
+                            <a href="https://downloads.triplo.ai" target="_blank" rel="noopener noreferrer">Get Downloads</a>
+                        </div>
+                        <div class="resource-card">
+                            <p>Read the Triplo license terms and stay informed about product usage rights and restrictions.</p>
+                            <a href="https://triplo.ai/license" target="_blank" rel="noopener noreferrer">View License</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="actions">
-            <button class="btn btn-secondary" onclick="loadConfig()">Reset</button>
+            <button class="btn btn-secondary" onclick="resetConfigPrompt()">Reset</button>
             <button class="btn btn-primary" onclick="saveConfig()">Save Configuration</button>
         </div>
     </div>
 
     <script>
+        let localLlmModels = [];
+        let novncUrl = null;
+        let novncLogoutUrl = null;
         // Tab switching
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -634,22 +924,42 @@
                 
                 // Populate all settings fields
                 const settings = data.settings || {};
+                if (!settings.llm_key) {
+                    const autoKey = await requestNewLlmKey(true, true);
+                    if (autoKey) {
+                        settings.llm_key = autoKey;
+                    }
+                }
                 Object.keys(settings).forEach(key => {
+                    if (key === 'ollama_models' && Array.isArray(settings[key])) {
+                        setLocalLlmModels(settings[key]);
+                        return;
+                    }
                     const element = document.getElementById(key);
                     if (element) {
                         if (element.type === 'checkbox') {
                             element.checked = settings[key];
-                        } else if (key === 'ollama_models' && Array.isArray(settings[key])) {
+                        } else if (key === 'custom_sp_hotkeys' && Array.isArray(settings[key])) {
                             element.value = settings[key].join(',');
                         } else {
                             element.value = settings[key];
                         }
                     }
                 });
+                if (!Array.isArray(settings.ollama_models)) {
+                    setLocalLlmModels([]);
+                }
                 
                 showAlert('Configuration loaded', 'success');
             } catch (error) {
                 showAlert('Failed to load configuration: ' + error.message, 'error');
+            }
+        }
+
+        function resetConfigPrompt() {
+            if (confirm('Reset all fields back to the last saved configuration (including authentication settings)?')) {
+                loadConfig();
+                loadAuthConfig();
             }
         }
 
@@ -668,7 +978,7 @@
                     'voice_tts_voice', 'voice_tts_model', 'voice_stt_lang', 'window_width',
                     'page_height', 'main_height', 'pinned', 'copy_results', 'enabled',
                     'auto_scroll', 'color_scheme', 'confirm_automations', 'yt_lang',
-                    'prompt_lang', 'language', 'enable_ollama', 'llm_key', 'ollama_url', 'ollama_models'
+                    'prompt_lang', 'language', 'enable_ollama', 'sync_local_llm', 'llm_key', 'ollama_url', 'custom_sp_hotkeys'
                 ];
                 
                 fields.forEach(field => {
@@ -678,15 +988,18 @@
                             settings[field] = element.checked;
                         } else if (element.type === 'number') {
                             settings[field] = parseFloat(element.value);
-                        } else if (field === 'ollama_models') {
-                            // Convert comma-separated string to array
-                            const models = element.value.split(',').map(m => m.trim()).filter(m => m);
-                            settings[field] = models;
+                        } else if (field === 'custom_sp_hotkeys') {
+                            const items = element.value.split(',').map(m => m.trim()).filter(m => m);
+                            settings[field] = items;
                         } else {
                             settings[field] = element.value;
                         }
                     }
                 });
+                settings['ollama_models'] = Array.isArray(localLlmModels) ? localLlmModels : [];
+                if (typeof settings.llm_key === 'string') {
+                    settings.llm_key = settings.llm_key.trim();
+                }
                 
                 const config = {
                     version: "5.4.0",
@@ -732,15 +1045,55 @@
                     statusText.textContent = 'Offline';
                 }
                 
-                // Update noVNC status
+                const novncInfo = data.novnc || {};
                 const novncStatus = document.getElementById('novncStatus');
                 const novncLink = document.getElementById('novncLink');
-                if (data.novnc_enabled) {
-                    novncStatus.textContent = 'enabled';
-                    novncLink.style.display = 'inline-block';
-                } else {
-                    novncStatus.textContent = 'disabled';
-                    novncLink.style.display = 'none';
+                const novncLogoutButton = document.getElementById('novncLogoutButton');
+                const novncToggle = document.getElementById('novnc_enabled_toggle');
+                const novncDetail = document.getElementById('novncStatusDetail');
+                const novncHelp = document.getElementById('novncToggleHelp');
+                novncUrl = novncInfo.url || null;
+                novncLogoutUrl = novncInfo.logout_url || null;
+
+                if (novncToggle) {
+                    novncToggle.checked = !!novncInfo.configured;
+                }
+                if (novncStatus) {
+                    if (novncInfo.active) {
+                        novncStatus.textContent = 'enabled';
+                    } else if (novncInfo.configured) {
+                        novncStatus.textContent = 'pending restart';
+                    } else {
+                        novncStatus.textContent = 'disabled';
+                    }
+                }
+                if (novncLink) {
+                    if (novncInfo.active && novncUrl) {
+                        novncLink.href = novncUrl;
+                        novncLink.classList.remove('hidden');
+                    } else {
+                        novncLink.href = '#';
+                        novncLink.classList.add('hidden');
+                    }
+                }
+                if (novncLogoutButton) {
+                    if (novncInfo.active && novncLogoutUrl) {
+                        novncLogoutButton.classList.remove('hidden');
+                    } else {
+                        novncLogoutButton.classList.add('hidden');
+                    }
+                }
+                if (novncDetail) {
+                    if (novncInfo.requires_restart) {
+                        novncDetail.textContent = 'Restart the container to apply the updated remote desktop setting.';
+                    } else if (novncInfo.active) {
+                        novncDetail.textContent = 'Remote desktop is ready at the link below.';
+                    } else {
+                        novncDetail.textContent = '';
+                    }
+                }
+                if (novncHelp) {
+                    novncHelp.textContent = novncInfo.requires_restart ? 'Restart the container after saving to finish applying this change.' : 'Toggle remote desktop availability for the built-in noVNC console.';
                 }
             } catch (error) {
                 console.error('Failed to check status:', error);
@@ -764,9 +1117,352 @@
             }
         }
 
+        function toggleNovncFields() {
+            const wrapper = document.getElementById('novncCustomFields');
+            const syncToggle = document.getElementById('auth_novnc_sync');
+            if (!wrapper || !syncToggle) return;
+            if (syncToggle.checked) {
+                wrapper.classList.add('hidden');
+            } else {
+                wrapper.classList.remove('hidden');
+            }
+        }
+
+        async function loadAuthConfig() {
+            try {
+                const response = await fetch('/api/auth');
+                const data = await response.json();
+                document.getElementById('auth_webui_username').value = data.webui?.username || '';
+                document.getElementById('auth_webui_password').value = '';
+                document.getElementById('auth_novnc_sync').checked = data.novnc?.use_webui_credentials !== false;
+                document.getElementById('auth_novnc_username').value = data.novnc?.username || '';
+                document.getElementById('auth_novnc_password').value = '';
+                toggleNovncFields();
+            } catch (error) {
+                console.error('Failed to load auth config:', error);
+                showAlert('Failed to load authentication settings: ' + error.message, 'error');
+            }
+        }
+
+        async function saveAuthConfig() {
+            try {
+                const webUsername = document.getElementById('auth_webui_username').value.trim();
+                const syncToggle = document.getElementById('auth_novnc_sync').checked;
+                if (!webUsername) {
+                    showAlert('Web UI username is required', 'error');
+                    return;
+                }
+
+                const payload = {
+                    webui: { username: webUsername },
+                    novnc: { use_webui_credentials: syncToggle }
+                };
+
+                const webPassword = document.getElementById('auth_webui_password').value;
+                if (webPassword) {
+                    payload.webui.password = webPassword;
+                }
+
+                if (!syncToggle) {
+                    const novncUsername = document.getElementById('auth_novnc_username').value.trim();
+                    if (novncUsername) {
+                        payload.novnc.username = novncUsername;
+                    }
+                    const novncPassword = document.getElementById('auth_novnc_password').value;
+                    if (novncPassword) {
+                        payload.novnc.password = novncPassword;
+                    }
+                }
+
+                const response = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showAlert('Authentication settings updated', 'success');
+                    document.getElementById('auth_webui_password').value = '';
+                    document.getElementById('auth_novnc_password').value = '';
+                    await loadAuthConfig();
+                } else {
+                    showAlert(result.message || 'Failed to update authentication', 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to update authentication: ' + error.message, 'error');
+            }
+        }
+
+        function setLocalLlmModels(models) {
+            if (!Array.isArray(models)) {
+                localLlmModels = [];
+            } else {
+                const unique = [];
+                models.forEach(model => {
+                    const trimmed = (model || '').trim();
+                    if (trimmed && !unique.includes(trimmed)) {
+                        unique.push(trimmed);
+                    }
+                });
+                localLlmModels = unique;
+            }
+            renderLocalLlmModels();
+        }
+
+        function renderLocalLlmModels() {
+            const container = document.getElementById('ollamaModelsList');
+            if (!container) return;
+            container.innerHTML = '';
+            if (!localLlmModels.length) {
+                const empty = document.createElement('p');
+                empty.className = 'model-empty';
+                empty.textContent = 'No models loaded yet. Refresh from your provider or add entries below.';
+                container.appendChild(empty);
+                return;
+            }
+            localLlmModels.forEach((model, index) => {
+                const row = document.createElement('div');
+                row.className = 'model-item';
+                const label = document.createElement('span');
+                label.className = 'model-name';
+                label.textContent = model;
+                const actions = document.createElement('div');
+                actions.className = 'model-actions';
+
+                const copyBtn = document.createElement('button');
+                copyBtn.type = 'button';
+                copyBtn.className = 'icon-button';
+                copyBtn.textContent = 'Copy';
+                copyBtn.addEventListener('click', () => copyLocalLlmModel(model));
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'icon-button';
+                removeBtn.textContent = 'Remove';
+                removeBtn.addEventListener('click', () => removeLocalLlmModel(index));
+
+                actions.append(copyBtn, removeBtn);
+                row.append(label, actions);
+                container.appendChild(row);
+            });
+        }
+
+        function addLocalLlmModel() {
+            const input = document.getElementById('ollama_model_input');
+            if (!input) return;
+            const value = input.value.trim();
+            if (!value) {
+                showAlert('Enter a model name before adding it to the list.', 'error');
+                return;
+            }
+            if (localLlmModels.includes(value)) {
+                showAlert('Model is already listed.', 'error');
+                return;
+            }
+            localLlmModels = [...localLlmModels, value];
+            renderLocalLlmModels();
+            input.value = '';
+        }
+
+        function removeLocalLlmModel(index) {
+            if (index < 0 || index >= localLlmModels.length) return;
+            localLlmModels.splice(index, 1);
+            renderLocalLlmModels();
+        }
+
+        function copyLocalLlmModel(model) {
+            copyText(model, 'Model copied');
+        }
+
+        function copyAllLocalLlmModels() {
+            if (!localLlmModels.length) {
+                showAlert('No models to copy yet.', 'error');
+                return;
+            }
+            copyText(localLlmModels.join('\n'), 'Model list copied');
+        }
+
+        async function refreshLocalLlmModels() {
+            const urlField = document.getElementById('ollama_url');
+            if (!urlField) return;
+            const providerUrl = urlField.value.trim();
+            if (!providerUrl) {
+                showAlert('Provide the Local LLM provider URL first.', 'error');
+                return;
+            }
+            try {
+                const response = await fetch('/api/local-llm/models', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: providerUrl })
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    setLocalLlmModels(result.models || []);
+                    showAlert(`Loaded ${result.models?.length || 0} model(s)`, 'success');
+                } else {
+                    showAlert(result.message || 'Failed to load models from provider.', 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to load models: ' + error.message, 'error');
+            }
+        }
+
+        function toggleSecret(fieldId) {
+            const input = document.getElementById(fieldId);
+            const toggle = document.querySelector(`[data-secret-toggle="${fieldId}"]`);
+            if (!input || !toggle) return;
+            const hidden = input.type === 'password';
+            input.type = hidden ? 'text' : 'password';
+            toggle.textContent = hidden ? '🙈' : '👁';
+            toggle.setAttribute('aria-label', hidden ? 'Hide value' : 'Show value');
+        }
+
+        function copyText(value, successMessage = '') {
+            if (!value) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(value).then(() => {
+                    if (successMessage) {
+                        showAlert(successMessage, 'success');
+                    }
+                }).catch(() => fallbackCopy(value, successMessage));
+            } else {
+                fallbackCopy(value, successMessage);
+            }
+        }
+
+        function fallbackCopy(value, successMessage) {
+            const textarea = document.createElement('textarea');
+            textarea.value = value;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                if (successMessage) {
+                    showAlert(successMessage, 'success');
+                }
+            } catch (err) {
+                showAlert('Failed to copy text: ' + err.message, 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function copyLlmKey() {
+            const value = document.getElementById('llm_key')?.value;
+            copyText(value, 'Encryption key copied');
+        }
+
+        async function requestNewLlmKey(auto = false, persist = false) {
+            try {
+                const response = await fetch('/api/local-llm/key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ persist })
+                });
+                const result = await response.json();
+                if (response.ok && result.success && result.key) {
+                    const input = document.getElementById('llm_key');
+                    if (input) {
+                        input.value = result.key;
+                    }
+                    if (!auto) {
+                        showAlert('Encryption key updated.', 'success');
+                    }
+                    return result.key;
+                }
+                if (!auto) {
+                    showAlert(result.message || 'Failed to generate a new encryption key.', 'error');
+                }
+            } catch (error) {
+                if (!auto) {
+                    showAlert('Failed to generate a new encryption key: ' + error.message, 'error');
+                }
+            }
+            return null;
+        }
+
+        function regenerateLlmKey() {
+            requestNewLlmKey(false, true);
+        }
+
+        async function updateNovncSetting() {
+            const toggle = document.getElementById('novnc_enabled_toggle');
+            if (!toggle) return;
+            try {
+                const response = await fetch('/api/platform/novnc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ enabled: toggle.checked })
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showAlert(result.message || 'Remote desktop preference saved.', 'success');
+                } else {
+                    showAlert(result.message || 'Failed to update remote desktop preference.', 'error');
+                }
+                await checkStatus();
+            } catch (error) {
+                showAlert('Failed to update remote desktop preference: ' + error.message, 'error');
+            }
+        }
+
+        function logoutWebUi() {
+            if (!confirm('Log out of the Web UI in this browser?')) {
+                return;
+            }
+            window.location.href = '/logout';
+        }
+
+        function flushNovncAuthCache() {
+            if (!novncUrl) {
+                return;
+            }
+            try {
+                const logoutTarget = new URL(novncUrl);
+                logoutTarget.username = 'logout';
+                logoutTarget.password = 'logout';
+                logoutTarget.searchParams.set('_', Date.now().toString());
+                fetch(logoutTarget.toString(), {
+                    method: 'GET',
+                    mode: 'no-cors',
+                    cache: 'no-store',
+                    credentials: 'omit'
+                }).catch(() => {
+                    /* Ignore network errors caused by opaque response */
+                });
+            } catch (err) {
+                console.warn('Failed to flush noVNC auth cache', err);
+            }
+        }
+
+        async function logoutNoVnc() {
+            try {
+                const response = await fetch('/api/novnc/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    cache: 'no-store'
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    flushNovncAuthCache();
+                    showAlert(result.message || 'Remote desktop sessions closed. Re-open the noVNC tab to sign in again.', 'success');
+                } else {
+                    showAlert(result.message || 'Failed to log out of the remote desktop.', 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to log out of the remote desktop: ' + error.message, 'error');
+            }
+        }
+
         // Initialize
         loadConfig();
+        loadAuthConfig();
         checkStatus();
+        document.getElementById('auth_novnc_sync').addEventListener('change', toggleNovncFields);
         setInterval(checkStatus, 10000); // Check status every 10 seconds
     </script>
 </body>

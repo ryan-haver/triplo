@@ -10,9 +10,11 @@ Automated Docker builds for Triplo AI with both headless and web-accessible mode
 
 **Web Mode (Browser Access):**
 ```bash
-docker run -d -p 6080:6080 --name triplo-web ghcr.io/ryan-haver/triplo-web:latest
+docker run -d -p 6080:6080 --name triplo-web \
+  -v triplo-data:/root/.config/Triplo\ AI \
+  ghcr.io/ryan-haver/triplo-web:latest
 ```
-Then open http://localhost:6080
+Then open http://localhost:6080 (default credentials: `triplo` / `triplo`). Rotate the credentials via **Access → Authentication** after first login.
 
 **Headless Mode:**
 ```bash
@@ -81,11 +83,35 @@ To restore:
 docker run --rm -v triplo-data-web:/data -v $(pwd):/backup ubuntu tar xzf /backup/triplo-backup.tar.gz -C /
 ```
 
+The key files that benefit from persistence live under `/root/.config/Triplo AI`:
+
+- `config.json` – Triplo's runtime settings managed via the Web UI
+- `webui-auth.json` – HTTP Basic Auth credentials for the Web UI and noVNC (editable from the Access tab or regenerated with `RESET_WEB_AUTH=true`)
+- `platform-settings.json` – Platform-level switches (currently the Remote Desktop/noVNC enablement flag) written by the Access tab Remote Desktop toggle
+
+Mount that directory once (for example, `-v triplo-data:/root/.config/Triplo\ AI`) to retain Triplo configuration, authentication, and platform toggle data.
+
 ### Custom Ports
 
 ```bash
 docker run -d -p 8080:6080 --name triplo-web ghcr.io/ryan-haver/triplo-web:latest
 ```
+
+### Authentication
+
+Both the Web UI and noVNC interfaces ship locked down with default credentials `triplo` / `triplo`. Override them when you start the container:
+
+```bash
+docker run -d -p 6080:6080 --name triplo-web \
+  -e WEBUI_USERNAME="admin" \
+  -e WEBUI_PASSWORD="supersecret" \
+  -v triplo-data:/root/.config/Triplo\ AI \
+  ghcr.io/ryan-haver/triplo-web:latest
+```
+
+noVNC automatically reuses the Web UI credentials, but you can provide dedicated values with `NOVNC_USERNAME` / `NOVNC_PASSWORD` if needed. Credentials are persisted in `/root/.config/Triplo AI/webui-auth.json`, so keep that directory on a volume. Change them later in the Web UI (Access tab) or set `RESET_WEB_AUTH=true` to regenerate from environment variables.
+
+If you expose the container through a reverse proxy (so port 6080 is not directly reachable), provide `NOVNC_PUBLIC_URL` with the externally visible URL. The Access tab uses it to populate the "Open noVNC" link inside the Remote Desktop card, while the logout control now talks to the Web UI backend directly so it works regardless of how you publish the VNC endpoint.
 
 ### Memory Allocation
 
@@ -98,6 +124,7 @@ docker run -d --shm-size=2g -p 6080:6080 --name triplo-web ghcr.io/ryan-haver/tr
 ### Automatic Updates
 
 The GitHub Actions workflow automatically:
+
 1. Monitors the upstream Elbruz-Technologies/triplo repository
 2. Builds new Docker images when releases are published
 3. Publishes to GitHub Container Registry
@@ -106,6 +133,7 @@ The GitHub Actions workflow automatically:
 ### Manual Trigger
 
 You can manually trigger a build for any version:
+
 
 1. Go to Actions tab in your fork
 2. Select "Build and Push Docker Images"
@@ -142,6 +170,7 @@ docker run -d -p 6080:6080 --name triplo-web ghcr.io/ryan-haver/triplo-web:lates
 ### Image not found
 
 Make sure GitHub Packages are public:
+
 1. Go to your fork's settings
 2. Navigate to Packages
 3. Make the package public
@@ -188,7 +217,7 @@ docker restart triplo-web
 
 - Latest Release: v5.4.0
 - Updated: Auto-synced with upstream releases
-- Source: https://github.com/Elbruz-Technologies/triplo
+- Source: <https://github.com/Elbruz-Technologies/triplo>
 
 ## Contributing
 

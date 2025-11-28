@@ -17,7 +17,7 @@
 - **🚀 Easy Deployment**
   - Single unified Docker image
   - Switch modes via `ENABLE_NOVNC` environment variable
-  - All settings configurable through Web UI
+  - All settings (including Remote Desktop enable/disable) configurable through the Web UI
   - Persistent configuration with Docker volumes
 
 ## 🏗️ Architecture
@@ -88,7 +88,7 @@ docker run -d \
    - **Voice & Audio**: TTS/STT configuration
    - **Display & UI**: Appearance, window size, languages
    - **Ollama**: Local LLM integration
-   - **Access**: noVNC status and application control
+  - **Access**: noVNC status, Remote Desktop toggle persistence, authentication controls, and restart actions
 
 3. **Save Changes**: Click "Save Configuration"
    - Configuration is written to `config.json`
@@ -162,20 +162,39 @@ While the Web UI allows you to configure most settings, some initial setup can b
 ### How It Works
 
 1. **Container Start**:
-   - `init-config.sh` generates initial `config.json` from env vars (if provided)
-   - Web UI server starts on port 8080
-   - Triplo AI starts with configuration
 
-2. **Web UI Updates**:
-   - User modifies settings in Web UI
-   - Click "Save" → writes to `config.json`
-   - Backend automatically restarts Triplo AI
-   - New settings take effect immediately
+    - `init-config.sh` generates initial `config.json` from env vars (if provided)
+    - Web UI server starts on port 8080
+    - Triplo AI starts with configuration
+    - Remote Desktop preference is loaded from `/root/.config/Triplo AI/platform-settings.json` (falling back to the `ENABLE_NOVNC` env var the first time)
 
-3. **Persistence**:
-   - Configuration stored in `/root/.config/Triplo AI/config.json`
-   - Mounted as Docker volume → survives container restarts
-   - No need to set env vars again
+1. **Web UI Updates**:
+
+    - User modifies settings in Web UI
+    - Click "Save" → writes to `config.json`
+    - Access tab actions also write to supporting files (authentication → `/root/.config/Triplo AI/webui-auth.json`, Remote Desktop toggle → `/root/.config/Triplo AI/platform-settings.json`). Authentication data is encrypted at rest; the companion key lives alongside the config volume (see below).
+    - Backend automatically restarts Triplo AI
+    - New settings take effect immediately
+
+1. **Persistence**:
+
+    - Configuration stored in `/root/.config/Triplo AI/config.json`
+    - Web/noVNC credentials stored in `/root/.config/Triplo AI/webui-auth.json`
+    - Encryption key for those credentials stored in `/root/.config/Triplo AI/webui-auth.key`; keep it with your volume backups because both files are required to decrypt
+    - Remote Desktop toggle stored in `/root/.config/Triplo AI/platform-settings.json`
+    - Mounted as Docker volume → survives container restarts
+    - No need to set env vars again
+
+### Encrypted Credentials
+
+- The first container start generates `/root/.config/Triplo AI/webui-auth.key`, a 32-byte secret used to encrypt `/root/.config/Triplo AI/webui-auth.json`.
+- Deleting either file breaks the pairing; remove both (or set `RESET_WEB_AUTH=true`) if you want the container to regenerate fresh credentials from env vars.
+- Back up the key file with the rest of the config volume—losing it means you cannot recover the stored passwords, while leaking it lets anyone decrypt them.
+
+### Remote Desktop Shortcuts
+
+- The Access tab's Remote Desktop card exposes quick "Open noVNC" and "Log out of noVNC" controls so you can launch or revoke browser sessions without memorizing the port. The logout button now talks to the Web UI backend, which rotates the noVNC auth realm and restarts the VNC stack so browsers lose their cached session without interrupting the Web UI tab.
+- When Triplo sits behind a reverse proxy, set `NOVNC_PUBLIC_URL` to the externally reachable noVNC URL so the "Open" link uses the right host/port. The logout workflow no longer depends on this value.
 
 ### Configuration Priority
 
@@ -197,12 +216,14 @@ While the Web UI allows you to configure most settings, some initial setup can b
 ## 🎨 Web UI Screenshots
 
 ### Configuration Interface
+
 - Clean, modern design
 - Tabbed organization
 - Real-time status indicators
 - Responsive layout
 
 ### Features
+
 - ✅ All 40+ Triplo settings accessible
 - ✅ Grouped by category (API, Preferences, Voice, Display, Ollama)
 - ✅ Live status monitoring
@@ -241,6 +262,7 @@ docker-compose -f docker-compose.unified.local.yml down
 ## 🐛 Troubleshooting
 
 ### Web UI not accessible
+
 ```bash
 # Check if container is running
 docker ps | grep triplo
@@ -253,6 +275,7 @@ docker port triplo
 ```
 
 ### Configuration not saving
+
 ```bash
 # Check volume mount
 docker inspect triplo | grep Mounts -A 10
@@ -262,6 +285,7 @@ docker exec triplo ls -la /root/.config/Triplo\ AI/
 ```
 
 ### Triplo not restarting after config save
+
 ```bash
 # Check Triplo process
 docker exec triplo ps aux | grep triplo.ai
@@ -274,6 +298,7 @@ docker exec triplo tail -f /var/log/supervisor/triplo.log
 ```
 
 ### noVNC not working (when ENABLE_NOVNC=true)
+
 ```bash
 # Check all services
 docker exec triplo supervisorctl status
@@ -285,36 +310,42 @@ docker exec triplo supervisorctl restart x11vnc novnc nginx
 ## 🎯 Use Cases
 
 ### 1. Development/Testing (Web Mode)
+
 - Use noVNC to interact with Triplo visually
 - Use Web UI to quickly test different settings
 - Iterate on prompts and configurations
 
 ### 2. Production/Automation (Headless Mode)
+
 - Lightweight deployment
 - API/CLI automation
 - Use Web UI for occasional maintenance
 
 ### 3. Personal Use (Web Mode)
+
 - Full desktop experience via browser
 - Easy configuration management
 - No local installation needed
 
 ## 📝 Migration from Old Containers
 
-### From `triplo-headless` or `triplo-web`:
+### From `triplo-headless` or `triplo-web`
 
 1. **Export your config** (if you want to keep it):
+
 ```bash
 docker cp triplo-headless:/root/.config/Triplo\ AI/config.json ./backup-config.json
 ```
+ 
+1. **Stop old container**:
 
-2. **Stop old container**:
 ```bash
 docker stop triplo-headless
 docker rm triplo-headless
 ```
 
-3. **Start unified container**:
+1. **Start unified container**:
+
 ```bash
 docker run -d \
   --name triplo \
@@ -324,16 +355,18 @@ docker run -d \
   ghcr.io/ryan-haver/triplo-unified:latest
 ```
 
-4. **Restore config** (optional):
+1. **Restore config** (optional):
+
 ```bash
 docker cp ./backup-config.json triplo:/root/.config/Triplo\ AI/config.json
 docker restart triplo
 ```
 
-5. **Or configure via Web UI**:
-   - Open http://localhost:8080
-   - Set all your preferences
-   - Click Save
+1. **Or configure via Web UI**:
+
+    - Open <http://localhost:8080>
+    - Set all your preferences
+    - Click Save
 
 ## 🌟 Benefits
 
