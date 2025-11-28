@@ -1,0 +1,55 @@
+# Sensitive configuration files
+*.env
+.env.*
+config.json
+**/config.json
+
+# Local API keys and secrets
+secrets.txt
+keys.txt
+credentials.txt
+
+# Docker volumes data
+triplo-data/
+*-data/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+
+# Node modules (if any)
+node_modules/
+
+# Build artifacts
+*.AppImage
+squashfs-root/
+
+# Test and temporary files
+test-config.json
+temp/
+tmp/
+*.tmp
+*.bak
+*.backup
+
+# Logs
+*.log
+logs/
