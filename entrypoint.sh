@@ -67,7 +67,7 @@ stdout_logfile=/var/log/supervisor/triplo.log
 stderr_logfile=/var/log/supervisor/triplo_err.log
 
 [program:webui]
-command=/usr/local/bin/gunicorn -w 2 -b 0.0.0.0:8080 app:app
+command=/usr/local/bin/gunicorn -w 2 -b 0.0.0.0:5000 app:app
 directory=/opt/webui
 autostart=true
 autorestart=true
@@ -123,7 +123,7 @@ http {
         server_name _;
 
         location / {
-            proxy_pass http://localhost:8080;
+            proxy_pass http://127.0.0.1:5000;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
