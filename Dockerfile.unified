@@ -67,8 +67,6 @@ COPY webui /opt/webui
 
 # Copy configuration files
 COPY init-config.sh /usr/local/bin/init-config.sh
-COPY supervisord-unified.conf /etc/supervisor/conf.d/supervisord.conf
-COPY nginx-unified.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/init-config.sh /usr/local/bin/entrypoint.sh
