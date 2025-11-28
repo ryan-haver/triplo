@@ -55,12 +55,18 @@ RUN chmod +x /opt/init-config.sh
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
+# Configure Fluxbox to hide window decorations and toolbar  
+RUN mkdir -p /root/.fluxbox && \
+    echo "session.screen0.toolbar.visible: false" > /root/.fluxbox/init && \
+    echo "session.screen0.defaultDeco: NONE" >> /root/.fluxbox/init && \
+    echo "session.screen0.focusModel: ClickFocus" >> /root/.fluxbox/init
+
 # Create startup script
 RUN echo '#!/bin/bash\n\
 /opt/init-config.sh\n\
 export DISPLAY=:1\n\
 cd /opt/triplo/triplo-ai\n\
-./triplo.ai --no-sandbox --disable-gpu\n\
+./triplo.ai --no-sandbox --disable-gpu --start-fullscreen\n\
 ' > /opt/start-triplo.sh && chmod +x /opt/start-triplo.sh
 
 EXPOSE 6080

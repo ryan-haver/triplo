@@ -30,6 +30,13 @@ docker run -d \
 - `TRIPLO_SKIP_WELCOME` - Skip welcome screen (default: `true`)
 - `TRIPLO_SKIP_TERMS` - Skip terms screen (default: `true`)
 
+### Display Configuration (Web Version)
+
+- `DISPLAY_WIDTH` - Virtual display width (default: `1920`)
+- `DISPLAY_HEIGHT` - Virtual display height (default: `1080`)
+
+**Note:** Triplo AI will launch in fullscreen mode to match the noVNC viewport.
+
 ### License
 
 - `TRIPLO_LICENSE_KEY` - Your Triplo AI license key
@@ -46,6 +53,8 @@ docker run -d \
   -e TRIPLO_TEMPERATURE="0.7" \
   -e TRIPLO_COLOR_SCHEME="dark" \
   -e TRIPLO_LICENSE_KEY="your-license-key" \
+  -e DISPLAY_WIDTH="1920" \
+  -e DISPLAY_HEIGHT="1080" \
   -v triplo-data:/root/.config/Triplo\ AI \
   ghcr.io/ryan-haver/triplo-web:latest
 ```
