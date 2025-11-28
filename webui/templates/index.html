@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triplo AI Configuration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.offline {
+            background: #f87171;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #6b7280;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .section {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            flex: 1;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 20px 30px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .novnc-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .novnc-link:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Triplo AI Configuration</h1>
+            <div class="status">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Checking...</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div id="alert" class="alert"></div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="api">API & Models</button>
+                <button class="tab" data-tab="preferences">Preferences</button>
+                <button class="tab" data-tab="voice">Voice & Audio</button>
+                <button class="tab" data-tab="display">Display & UI</button>
+                <button class="tab" data-tab="ollama">Ollama</button>
+                <button class="tab" data-tab="access">Access</button>
+            </div>
+
+            <!-- API & Models Tab -->
+            <div class="tab-content active" data-content="api">
+                <div class="section">
+                    <div class="section-title">🤖 AI Provider</div>
+                    <div class="form-group">
+                        <label>AI Source</label>
+                        <select id="ai_source">
+                            <option value="open_ai">OpenAI</option>
+                            <option value="openrouter">OpenRouter</option>
+                            <option value="anthropic">Anthropic</option>
+                            <option value="ollama">Ollama (Local)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🔑 API Keys</div>
+                    <div class="form-group">
+                        <label>License Key</label>
+                        <input type="text" id="license_key" placeholder="Your Triplo AI license key">
+                    </div>
+                    <div class="form-group">
+                        <label>OpenAI API Key</label>
+                        <input type="text" id="openai_key" placeholder="sk-proj-...">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="enable_openai_key">
+                            <label for="enable_openai_key">Enable OpenAI</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>OpenRouter API Key</label>
+                        <input type="text" id="openrouter_key" placeholder="sk-or-...">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="enable_openrouter_key">
+                            <label for="enable_openrouter_key">Enable OpenRouter</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Anthropic API Key</label>
+                        <input type="text" id="anthropic_key" placeholder="sk-ant-...">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="enable_anthropic_key">
+                            <label for="enable_anthropic_key">Enable Anthropic</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">⚙️ Model Configuration</div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>OpenAI Model</label>
+                            <select id="openai_model">
+                                <option value="gpt-4o">GPT-4o</option>
+                                <option value="gpt-4o-mini">GPT-4o Mini</option>
+                                <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Temperature (0-2)</label>
+                            <input type="number" id="temperature" min="0" max="2" step="0.1" value="0.5">
+                            <div class="help-text">Higher = more creative, Lower = more focused</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Presence Penalty (0-2)</label>
+                            <input type="number" id="presence_penalty" min="0" max="2" step="0.1" value="0">
+                            <div class="help-text">Encourages model to talk about new topics</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preferences Tab -->
+            <div class="tab-content" data-content="preferences">
+                <div class="section">
+                    <div class="section-title">🎯 Features</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="inline_scrape">
+                        <label for="inline_scrape">Enable Inline Scraping</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="aware_mode">
+                        <label for="aware_mode">Awareness Mode</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="auto_scroll">
+                        <label for="auto_scroll">Auto Scroll</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="copy_results">
+                        <label for="copy_results">Copy Results to Clipboard</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="confirm_automations">
+                        <label for="confirm_automations">Confirm Before Automations</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="confirm_delete">
+                        <label for="confirm_delete">Confirm Before Delete</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="run_at_startup">
+                        <label for="run_at_startup">Run at Startup</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enabled">
+                        <label for="enabled">Triplo Enabled</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enable_normal_prompts">
+                        <label for="enable_normal_prompts">Enable Normal Prompts</label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">⌨️ Keyboard</div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>Custom Hotkey</label>
+                            <input type="text" id="custom_hotkey" placeholder="Ctrl+Space">
+                        </div>
+                        <div class="form-group">
+                            <label>Custom Trigger</label>
+                            <input type="text" id="custom_trigger" placeholder="">
+                        </div>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="shift_backspace">
+                        <label for="shift_backspace">Shift+Backspace Shortcut</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice & Audio Tab -->
+            <div class="tab-content" data-content="voice">
+                <div class="section">
+                    <div class="section-title">🔊 Audio Settings</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="sound">
+                        <label for="sound">Notification Sounds</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="voice">
+                        <label for="voice">Voice Features</label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🎙️ Text-to-Speech</div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>TTS Voice</label>
+                            <select id="voice_tts_voice">
+                                <option value="alloy">Alloy</option>
+                                <option value="echo">Echo</option>
+                                <option value="fable">Fable</option>
+                                <option value="onyx">Onyx</option>
+                                <option value="nova">Nova</option>
+                                <option value="shimmer">Shimmer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>TTS Model</label>
+                            <select id="voice_tts_model">
+                                <option value="tts-1">TTS-1</option>
+                                <option value="tts-1-hd">TTS-1 HD</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>TTS Speed (0.25-4.0)</label>
+                            <input type="number" id="voice_tts_speed" min="0.25" max="4" step="0.25" value="1">
+                        </div>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="voice_tts_autoplay">
+                        <label for="voice_tts_autoplay">Autoplay TTS</label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🎧 Speech-to-Text</div>
+                    <div class="form-group">
+                        <label>STT Language</label>
+                        <input type="text" id="voice_stt_lang" placeholder="en" maxlength="2">
+                        <div class="help-text">ISO 639-1 language code (e.g., en, es, fr)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Display & UI Tab -->
+            <div class="tab-content" data-content="display">
+                <div class="section">
+                    <div class="section-title">🎨 Appearance</div>
+                    <div class="form-group">
+                        <label>Color Scheme</label>
+                        <select id="color_scheme">
+                            <option value="auto">Auto</option>
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Indicator</label>
+                        <select id="indicator">
+                            <option value="idle">Idle</option>
+                            <option value="active">Active</option>
+                            <option value="hidden">Hidden</option>
+                        </select>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="pinned">
+                        <label for="pinned">Window Pinned (Always on Top)</label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">📏 Window Dimensions</div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>Window Width</label>
+                            <select id="window_width">
+                                <option value="sm">Small</option>
+                                <option value="md">Medium</option>
+                                <option value="lg">Large</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Page Height</label>
+                            <select id="page_height">
+                                <option value="sm">Small</option>
+                                <option value="md">Medium</option>
+                                <option value="lg">Large</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Main Height</label>
+                            <select id="main_height">
+                                <option value="sm">Small</option>
+                                <option value="md">Medium</option>
+                                <option value="lg">Large</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🌍 Language</div>
+                    <div class="grid">
+                        <div class="form-group">
+                            <label>Interface Language</label>
+                            <input type="text" id="language" placeholder="en" maxlength="2">
+                        </div>
+                        <div class="form-group">
+                            <label>YouTube Language</label>
+                            <input type="text" id="yt_lang" placeholder="en" maxlength="2">
+                        </div>
+                        <div class="form-group">
+                            <label>Prompt Language</label>
+                            <input type="text" id="prompt_lang" placeholder="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ollama Tab -->
+            <div class="tab-content" data-content="ollama">
+                <div class="section">
+                    <div class="section-title">🦙 Ollama Configuration</div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="enable_ollama">
+                        <label for="enable_ollama">Enable Ollama</label>
+                    </div>
+                    <div class="form-group">
+                        <label>LLM API Key</label>
+                        <input type="text" id="llm_key" placeholder="">
+                    </div>
+                    <div class="form-group">
+                        <label>Ollama URL</label>
+                        <input type="text" id="ollama_url" placeholder="http://localhost:11434">
+                        <div class="help-text">URL of your Ollama server</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ollama Models (comma-separated)</label>
+                        <input type="text" id="ollama_models" placeholder="llama3.1:latest,deepseek-r1:latest">
+                        <div class="help-text">Available models from your Ollama server</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Access Tab -->
+            <div class="tab-content" data-content="access">
+                <div class="section">
+                    <div class="section-title">🖥️ Access Options</div>
+                    <div id="novncSection">
+                        <p style="margin-bottom: 16px;">noVNC is <strong id="novncStatus">disabled</strong>.</p>
+                        <a href="/novnc" class="novnc-link" id="novncLink" style="display: none;" target="_blank">
+                            Open noVNC Interface →
+                        </a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">🔄 Application Control</div>
+                    <button class="btn btn-secondary" onclick="restartTriplo()">Restart Triplo AI</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-secondary" onclick="loadConfig()">Reset</button>
+            <button class="btn btn-primary" onclick="saveConfig()">Save Configuration</button>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.querySelector(`[data-content="${tab.dataset.tab}"]`).classList.add('active');
+            });
+        });
+
+        // Show alert
+        function showAlert(message, type = 'success') {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type}`;
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load configuration
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/config');
+                const data = await response.json();
+                
+                // Populate top-level fields
+                document.getElementById('license_key').value = data.settings?.license_key || '';
+                
+                // Populate all settings fields
+                const settings = data.settings || {};
+                Object.keys(settings).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            element.checked = settings[key];
+                        } else if (key === 'ollama_models' && Array.isArray(settings[key])) {
+                            element.value = settings[key].join(',');
+                        } else {
+                            element.value = settings[key];
+                        }
+                    }
+                });
+                
+                showAlert('Configuration loaded', 'success');
+            } catch (error) {
+                showAlert('Failed to load configuration: ' + error.message, 'error');
+            }
+        }
+
+        // Save configuration
+        async function saveConfig() {
+            try {
+                const settings = {};
+                
+                // Collect all form values
+                const fields = [
+                    'license_key', 'ai_source', 'openai_key', 'openrouter_key', 'anthropic_key',
+                    'enable_openai_key', 'enable_openrouter_key', 'enable_anthropic_key', 'enable_normal_prompts',
+                    'openai_model', 'temperature', 'presence_penalty', 'custom_trigger', 'shift_backspace',
+                    'custom_hotkey', 'indicator', 'run_at_startup', 'inline_scrape', 'confirm_delete',
+                    'aware_mode', 'sound', 'voice', 'voice_tts_speed', 'voice_tts_autoplay',
+                    'voice_tts_voice', 'voice_tts_model', 'voice_stt_lang', 'window_width',
+                    'page_height', 'main_height', 'pinned', 'copy_results', 'enabled',
+                    'auto_scroll', 'color_scheme', 'confirm_automations', 'yt_lang',
+                    'prompt_lang', 'language', 'enable_ollama', 'llm_key', 'ollama_url', 'ollama_models'
+                ];
+                
+                fields.forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            settings[field] = element.checked;
+                        } else if (element.type === 'number') {
+                            settings[field] = parseFloat(element.value);
+                        } else if (field === 'ollama_models') {
+                            // Convert comma-separated string to array
+                            const models = element.value.split(',').map(m => m.trim()).filter(m => m);
+                            settings[field] = models;
+                        } else {
+                            settings[field] = element.value;
+                        }
+                    }
+                });
+                
+                const config = {
+                    version: "5.4.0",
+                    locale: "en-US",
+                    indicatorPosition: { x: 0, y: 0 },
+                    seenWelcome: true,
+                    seenTerms: true,
+                    settings: settings
+                };
+                
+                const response = await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showAlert('Configuration saved and Triplo restarted!', 'success');
+                    setTimeout(() => checkStatus(), 2000);
+                } else {
+                    showAlert('Failed to save: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to save configuration: ' + error.message, 'error');
+            }
+        }
+
+        // Check status
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
+                if (data.running) {
+                    statusDot.classList.remove('offline');
+                    statusText.textContent = 'Running';
+                } else {
+                    statusDot.classList.add('offline');
+                    statusText.textContent = 'Offline';
+                }
+                
+                // Update noVNC status
+                const novncStatus = document.getElementById('novncStatus');
+                const novncLink = document.getElementById('novncLink');
+                if (data.novnc_enabled) {
+                    novncStatus.textContent = 'enabled';
+                    novncLink.style.display = 'inline-block';
+                } else {
+                    novncStatus.textContent = 'disabled';
+                    novncLink.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Failed to check status:', error);
+            }
+        }
+
+        // Restart Triplo
+        async function restartTriplo() {
+            try {
+                const response = await fetch('/api/restart', { method: 'POST' });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('Triplo AI restarted', 'success');
+                    setTimeout(() => checkStatus(), 2000);
+                } else {
+                    showAlert('Failed to restart: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Failed to restart: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize
+        loadConfig();
+        checkStatus();
+        setInterval(checkStatus, 10000); // Check status every 10 seconds
+    </script>
+</body>
+</html>
