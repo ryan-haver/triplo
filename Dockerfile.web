@@ -47,12 +47,17 @@ RUN VERSION_NUM=$(echo ${APPIMAGE_VERSION} | sed 's/v//') \
     && mv squashfs-root triplo-ai \
     && rm Triplo-AI-${VERSION_NUM}.AppImage
 
+# Copy config initialization script
+COPY init-config.sh /opt/init-config.sh
+RUN chmod +x /opt/init-config.sh
+
 # Create supervisor configuration
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Create startup script
 RUN echo '#!/bin/bash\n\
+/opt/init-config.sh\n\
 export DISPLAY=:1\n\
 cd /opt/triplo/triplo-ai\n\
 ./triplo.ai --no-sandbox --disable-gpu\n\

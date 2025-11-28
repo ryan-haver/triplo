@@ -34,8 +34,13 @@ RUN VERSION_NUM=$(echo ${APPIMAGE_VERSION} | sed 's/v//') \
     && mv squashfs-root triplo-ai \
     && rm Triplo-AI-${VERSION_NUM}.AppImage
 
+# Copy config initialization script
+COPY init-config.sh /opt/init-config.sh
+RUN chmod +x /opt/init-config.sh
+
 # Create startup script
 RUN echo '#!/bin/bash\n\
+/opt/init-config.sh\n\
 Xvfb :99 -screen 0 1920x1080x24 &\n\
 export DISPLAY=:99\n\
 sleep 2\n\

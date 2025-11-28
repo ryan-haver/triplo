@@ -1,6 +1,13 @@
 name: Build and Push Docker Images
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Dockerfile.*'
+      - 'supervisord.conf'
+      - '.github/workflows/docker-build.yml'
   release:
     types: [published]
   workflow_dispatch:
