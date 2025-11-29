@@ -3,11 +3,35 @@
 # Create config directory if it doesn't exist
 mkdir -p "/root/.config/Triplo AI"
 
+generate_llm_key() {
+  local chars="abcdefghijklmnopqrstuvwxyz0123456789"
+  local segment
+  local parts=()
+  for _ in 1 2 3 4; do
+    segment=$(tr -dc "$chars" </dev/urandom | head -c4)
+    if [ -z "$segment" ]; then
+      segment=$(printf "%04x" $((RANDOM * RANDOM)) | cut -c1-4)
+    fi
+    parts+=("$segment")
+  done
+  (IFS=-; echo "${parts[*]}")
+}
+
+if [ -z "$TRIPLO_LLM_KEY" ]; then
+  TRIPLO_LLM_KEY=$(generate_llm_key)
+fi
+
 # Parse OLLAMA_MODELS env var (comma-separated) into JSON array
 OLLAMA_MODELS_JSON="[]"
 if [ -n "$TRIPLO_OLLAMA_MODELS" ]; then
   # Convert comma-separated list to JSON array
   OLLAMA_MODELS_JSON=$(echo "$TRIPLO_OLLAMA_MODELS" | jq -R 'split(",") | map(gsub("^\\s+|\\s+$";""))')
+fi
+
+# Parse TRIPLO_CUSTOM_SP_HOTKEYS env var (comma-separated) into JSON array
+CUSTOM_SP_HOTKEYS_JSON="[]"
+if [ -n "$TRIPLO_CUSTOM_SP_HOTKEYS" ]; then
+  CUSTOM_SP_HOTKEYS_JSON=$(echo "$TRIPLO_CUSTOM_SP_HOTKEYS" | jq -R 'split(",") | map(gsub("^\\s+|\\s+$";""))')
 fi
 
 # Generate config.json with environment variable substitution
@@ -62,9 +86,11 @@ cat > "/root/.config/Triplo AI/config.json" << EOF
     "prompt_lang": "${TRIPLO_PROMPT_LANG:-}",
     "language": "${TRIPLO_LANGUAGE:-en}",
     "enable_ollama": ${TRIPLO_ENABLE_OLLAMA:-false},
-    "llm_key": "${TRIPLO_LLM_KEY:-}",
+    "sync_local_llm": ${TRIPLO_SYNC_LOCAL_LLM:-false},
+    "llm_key": "${TRIPLO_LLM_KEY}",
     "ollama_url": "${TRIPLO_OLLAMA_URL:-http://localhost:11434}",
-    "ollama_models": ${OLLAMA_MODELS_JSON}
+    "ollama_models": ${OLLAMA_MODELS_JSON},
+    "custom_sp_hotkeys": ${CUSTOM_SP_HOTKEYS_JSON}
   }
 }
 EOF

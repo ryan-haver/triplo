@@ -9,19 +9,23 @@ Automated Docker builds for Triplo AI with both headless and web-accessible mode
 ### Using Pre-built Images (Recommended)
 
 **Web Mode (Browser Access):**
+
 ```bash
 docker run -d -p 6080:6080 --name triplo-web \
   -v triplo-data:/root/.config/Triplo\ AI \
   ghcr.io/ryan-haver/triplo-web:latest
 ```
-Then open http://localhost:6080 (default credentials: `triplo` / `triplo`). Rotate the credentials via **Access → Authentication** after first login.
+
+  Then open <http://localhost:6080> (default credentials: `triplo` / `triplo`). Rotate the credentials via **Access → Authentication** after first login.
 
 **Headless Mode:**
+
 ```bash
 docker run -d --name triplo-headless ghcr.io/ryan-haver/triplo-headless:latest
 ```
 
 **Using Docker Compose:**
+
 ```bash
 curl -O https://raw.githubusercontent.com/ryan-haver/triplo/main/docker-compose.yml
 docker-compose up -d
@@ -133,7 +137,6 @@ The GitHub Actions workflow automatically:
 ### Manual Trigger
 
 You can manually trigger a build for any version:
-
 
 1. Go to Actions tab in your fork
 2. Select "Build and Push Docker Images"

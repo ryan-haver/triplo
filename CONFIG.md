@@ -49,6 +49,7 @@ docker run -d \
 All boolean values: `true` or `false`
 
 **Behavior:**
+
 - `TRIPLO_INLINE_SCRAPING` - Inline scraping (default: `true`)
 - `TRIPLO_AUTO_SCROLL` - Auto scroll (default: `true`)
 - `TRIPLO_AWARENESS_MODE` - Awareness mode (default: `true`)
@@ -59,6 +60,7 @@ All boolean values: `true` or `false`
 - `TRIPLO_PINNED` - Pin window (default: `true`)
 
 **Audio & Voice:**
+
 - `TRIPLO_NOTIFICATION_SOUNDS` - Notification sounds (default: `true`)
 - `TRIPLO_VOICE_FEATURES` - Voice features (default: `true`)
 - `TRIPLO_VOICE_TTS_SPEED` - TTS speed (default: `1`)
@@ -68,9 +70,11 @@ All boolean values: `true` or `false`
 - `TRIPLO_VOICE_STT_LANG` - STT language (default: `en`)
 
 **Clipboard:**
+
 - `TRIPLO_COPY_TO_CLIPBOARD` - Copy responses to clipboard (default: `true`)
 
 **Other:**
+
 - `TRIPLO_SKIP_WELCOME` - Skip welcome screen (default: `true`)
 - `TRIPLO_SKIP_TERMS` - Skip terms screen (default: `true`)
 - `TRIPLO_SHIFT_BACKSPACE` - Enable Shift+Backspace shortcut (default: `true`)

@@ -6,6 +6,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV DISPLAY=:99
 ENV APPIMAGE_VERSION=${VERSION}
 ENV ENABLE_NOVNC=false
+# Default HTTP Basic Auth credentials (override at runtime)
+ENV WEBUI_USERNAME=triplo
+ENV WEBUI_PASSWORD=triplo
+ENV NOVNC_USERNAME=triplo
+ENV NOVNC_PASSWORD=triplo
+ENV WEBUI_AUTH_FILE="/root/.config/Triplo AI/webui-auth.json"
+ENV NOVNC_HTPASSWD_PATH=/etc/nginx/.htpasswd-novnc
 
 # Install base dependencies
 RUN apt-get update && apt-get install -y \
@@ -29,6 +36,11 @@ RUN apt-get update && apt-get install -y \
     git \
     supervisor \
     net-tools \
+    apache2-utils \
+    librsvg2-bin \
+    feh \
+    wmctrl \
+    x11-utils \
     && rm -rf /var/lib/apt/lists/* \
     && rm -f /var/cache/fontconfig/*
 
@@ -60,16 +72,47 @@ RUN git clone https://github.com/novnc/noVNC.git /opt/novnc \
 # Configure Fluxbox for fullscreen (only used if ENABLE_NOVNC=true)
 RUN mkdir -p /root/.fluxbox \
     && echo "session.screen0.toolbar.visible: false" > /root/.fluxbox/init \
-    && echo "session.screen0.defaultDeco: NONE" >> /root/.fluxbox/init
+    && echo "session.screen0.defaultDeco: NONE" >> /root/.fluxbox/init \
+    && echo "session.screen0.rootCommand: fbsetbg -c /opt/triplo/branding/triplo_wallpaper.png" >> /root/.fluxbox/init \
+    && printf '$center $full|/opt/triplo/branding/triplo_wallpaper.png||:1\n' > /root/.fluxbox/lastwallpaper
+
+RUN cat <<'EOF' > /root/.fluxbox/startup
+#!/bin/sh
+
+export DISPLAY="${DISPLAY:-:1}"
+
+(
+    attempts=0
+    max_attempts=20
+    sleep 2
+    while [ "$attempts" -lt "$max_attempts" ]; do
+        if /usr/bin/fbsetbg -c /opt/triplo/branding/triplo_wallpaper.png >/dev/null 2>&1; then
+            break
+        fi
+        attempts=$((attempts + 1))
+        sleep 2
+    done
+) &
+
+/usr/local/bin/center-triplo-window.sh &
+
+exec /usr/bin/fluxbox -display "$DISPLAY"
+EOF
+RUN sed -i 's/\r$//' /root/.fluxbox/startup && chmod +x /root/.fluxbox/startup
+
+# Triplo wallpaper assets
+COPY branding /opt/triplo/branding
+RUN rsvg-convert -w 1920 -h 1080 /opt/triplo/branding/triplo_wallpaper.svg -o /opt/triplo/branding/triplo_wallpaper.png
 
 # Copy web UI files
 COPY webui /opt/webui
+COPY scripts/center-triplo-window.sh /usr/local/bin/center-triplo-window.sh
 
 # Copy configuration files
 COPY init-config.sh /usr/local/bin/init-config.sh
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-RUN chmod +x /usr/local/bin/init-config.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/init-config.sh /usr/local/bin/entrypoint.sh /usr/local/bin/center-triplo-window.sh
 
 # Expose ports
 # 8080 - Web UI

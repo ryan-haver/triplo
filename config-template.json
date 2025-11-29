@@ -46,6 +46,15 @@
     "confirm_automations": true,
     "yt_lang": "en",
     "prompt_lang": "",
-    "language": "${TRIPLO_LANGUAGE:-en}"
+    "language": "${TRIPLO_LANGUAGE:-en}",
+    "enable_ollama": false,
+    "sync_local_llm": false,
+    "llm_key": "abcd-1234-efgh-5678",
+    "ollama_url": "http://localhost:11434",
+    "ollama_models": [
+      "llama3.1:latest",
+      "qwen:latest"
+    ],
+    "custom_sp_hotkeys": []
   }
 }

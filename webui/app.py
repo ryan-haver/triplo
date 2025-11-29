@@ -11,6 +11,7 @@ import subprocess
 import signal
 import secrets
 import string
+import time
 from pathlib import Path
 from typing import Dict, Tuple, Optional
 from urllib import request as urlrequest, error as urlerror
@@ -27,6 +28,7 @@ NOVNC_REALM_PREFIX = os.environ.get("NOVNC_AUTH_REALM_PREFIX", "Triplo noVNC")
 TRIPLO_PID_FILE = "/var/run/triplo.pid"
 NOVNC_PORT = os.environ.get("NOVNC_PORT", "6080")
 NOVNC_PUBLIC_URL = os.environ.get("NOVNC_PUBLIC_URL")
+SUPERVISOR_SERVER_URL = os.environ.get("SUPERVISOR_SERVER_URL", "unix:///var/run/supervisor.sock")
 
 DEFAULT_AUTH = {
     "webui": {"username": "triplo", "password": "triplo"},
@@ -277,25 +279,48 @@ def write_config(config_data, restart: bool = True):
 def restart_triplo():
     """Restart the Triplo AI application"""
     try:
-        # Find Triplo process
         result = subprocess.run(
             ["pgrep", "-f", "triplo.ai"],
             capture_output=True,
             text=True
         )
-        
-        if result.stdout.strip():
-            pid = int(result.stdout.strip().split()[0])
-            os.kill(pid, signal.SIGTERM)
-            
-            # Wait a moment for graceful shutdown
-            import time
+        pids = [pid for pid in result.stdout.strip().split() if pid.isdigit()]
+
+        for pid in pids:
+            try:
+                os.kill(int(pid), signal.SIGTERM)
+            except OSError as exc:
+                print(f"Warning: unable to signal Triplo PID {pid}: {exc}")
+
+        if pids:
             time.sleep(2)
-        
-        # Restart via supervisorctl if available
-        subprocess.run(["supervisorctl", "restart", "triplo"], check=False)
-        
-        return True
+
+        restart_cmd = [
+            "supervisorctl",
+            "-s",
+            SUPERVISOR_SERVER_URL,
+            "restart",
+            "triplo"
+        ]
+        restart_proc = subprocess.run(
+            restart_cmd,
+            capture_output=True,
+            text=True,
+            check=False
+        )
+        if restart_proc.returncode != 0:
+            print(
+                "supervisorctl restart failed:",
+                restart_proc.stderr.strip() or restart_proc.stdout.strip()
+            )
+
+        time.sleep(2)
+        verify = subprocess.run(
+            ["pgrep", "-f", "triplo.ai"],
+            capture_output=True,
+            text=True
+        )
+        return bool(verify.stdout.strip())
     except Exception as e:
         print(f"Error restarting Triplo: {e}")
         return False

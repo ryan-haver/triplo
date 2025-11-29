@@ -22,7 +22,7 @@
 
 ## 🏗️ Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │                  Unified Container                  │
 ├─────────────────────────────────────────────────────┤
@@ -59,7 +59,7 @@ docker run -d \
   ghcr.io/ryan-haver/triplo-unified:latest
 ```
 
-**Access:** http://localhost:8080
+**Access:** <http://localhost:8080>
 
 ### Web Mode (noVNC + Web UI)
 
@@ -75,27 +75,19 @@ docker run -d \
 ```
 
 **Access:**
-- Configuration UI: http://localhost:8080
-- noVNC Interface: http://localhost:6080
+
+- Configuration UI: <http://localhost:8080>
+- noVNC Interface: <http://localhost:6080>
 
 ## 🎛️ Using the Web Configuration UI
 
 1. **Open the UI**: Navigate to `http://localhost:8080`
 
-2. **Configure Settings**: Use the tabbed interface:
-   - **API & Models**: AI provider, API keys, model selection
-   - **Preferences**: Features, keyboard shortcuts, behaviors
-   - **Voice & Audio**: TTS/STT configuration
-   - **Display & UI**: Appearance, window size, languages
-   - **Ollama**: Local LLM integration
-  - **Access**: noVNC status, Remote Desktop toggle persistence, authentication controls, and restart actions
+1. **Configure Settings**: Use the tabbed interface spanning **API & Models**, **Preferences**, **Voice & Audio**, **Display & UI**, **Ollama**, and **Access** (noVNC controls, authentication, restart tools).
 
-3. **Save Changes**: Click "Save Configuration"
-   - Configuration is written to `config.json`
-   - Triplo AI automatically restarts
-   - Changes persist across container restarts
+1. **Save Changes**: Click "Save Configuration"—the backend writes `config.json`, restarts Triplo AI, and persists everything across container restarts.
 
-4. **Manual Restart**: Use "Restart Triplo AI" button in Access tab
+1. **Manual Restart**: Use "Restart Triplo AI" button in Access tab
 
 ## 🐳 Docker Compose
 
@@ -144,11 +136,13 @@ volumes:
 While the Web UI allows you to configure most settings, some initial setup can be done via environment variables:
 
 ### Core Configuration
+
 - `ENABLE_NOVNC` - Enable noVNC remote desktop (`true`/`false`, default: `false`)
 - `DISPLAY_WIDTH` - Virtual display width (default: `1920`)
 - `DISPLAY_HEIGHT` - Virtual display height (default: `1080`)
 
 ### Quick Setup (Optional)
+
 - `OPENAI_API_KEY` - Your OpenAI API key
 - `OPENROUTER_API_KEY` - Your OpenRouter API key
 - `ANTHROPIC_API_KEY` - Your Anthropic API key
@@ -205,7 +199,7 @@ While the Web UI allows you to configure most settings, some initial setup can b
 ## 📊 Comparison: Old vs New Approach
 
 | Feature | Old (Separate Containers) | New (Unified + Web UI) |
-|---------|--------------------------|------------------------|
+| ------- | ------------------------- | ---------------------- |
 | Container Images | 2 separate images | 1 unified image |
 | Configuration | Environment variables | Web UI + env vars |
 | Settings Changes | Rebuild/restart container | Live update via Web UI |
@@ -336,7 +330,7 @@ docker exec triplo supervisorctl restart x11vnc novnc nginx
 ```bash
 docker cp triplo-headless:/root/.config/Triplo\ AI/config.json ./backup-config.json
 ```
- 
+
 1. **Stop old container**:
 
 ```bash

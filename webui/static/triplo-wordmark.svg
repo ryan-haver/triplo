@@ -1,0 +1,13 @@
+<svg width="180" height="48" viewBox="0 0 180 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="180" height="48" fill="none" />
+    <g opacity="0.95" transform="translate(0,6)">
+        <circle cx="26" cy="26" r="14" fill="#ffffff" />
+        <circle cx="54" cy="26" r="14" fill="#ffffff" />
+        <circle cx="40" cy="12" r="14" fill="#ffffff" />
+        <circle cx="26" cy="26" r="7.5" fill="#00f58c" />
+        <circle cx="54" cy="26" r="7.5" fill="#00f58c" />
+        <circle cx="40" cy="12" r="7.5" fill="#00f58c" />
+    </g>
+    <text x="78" y="30" fill="#e8ffee" font-family="'Segoe UI', 'Inter', 'Roboto', sans-serif" font-weight="600" font-size="22">triplo</text>
+    <text x="140" y="30" fill="#00f58c" font-family="'Segoe UI', 'Inter', 'Roboto', sans-serif" font-weight="700" font-size="20">+</text>
+</svg>

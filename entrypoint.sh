@@ -153,9 +153,19 @@ if [ "${ENABLE_NOVNC}" = "true" ]; then
     
     # Use noVNC-enabled supervisor config
     cat > /etc/supervisor/conf.d/supervisord.conf << 'EOF'
+[unix_http_server]
+file=/var/run/supervisor.sock
+chmod=0700
+
 [supervisord]
 nodaemon=true
 user=root
+
+[supervisorctl]
+serverurl=unix:///var/run/supervisor.sock
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 
 [program:xvfb]
 command=/usr/bin/Xvfb :1 -screen 0 %(ENV_DISPLAY_WIDTH)sx%(ENV_DISPLAY_HEIGHT)sx24
@@ -166,7 +176,7 @@ stdout_logfile=/var/log/supervisor/xvfb.log
 stderr_logfile=/var/log/supervisor/xvfb_err.log
 
 [program:fluxbox]
-command=/usr/bin/fluxbox -display :1
+command=/usr/bin/startfluxbox
 autostart=true
 autorestart=true
 priority=200
@@ -305,9 +315,19 @@ else
     
     # Use headless-only supervisor config
     cat > /etc/supervisor/conf.d/supervisord.conf << 'EOF'
+[unix_http_server]
+file=/var/run/supervisor.sock
+chmod=0700
+
 [supervisord]
 nodaemon=true
 user=root
+
+[supervisorctl]
+serverurl=unix:///var/run/supervisor.sock
+
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 
 [program:xvfb]
 command=/usr/bin/Xvfb :99 -screen 0 1920x1080x24
